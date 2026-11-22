@@ -22,9 +22,12 @@ on:
     - cron: "17 3 * * *"
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - run: echo "started $(date -u +%FT%TZ) for ${{ github.event.schedule || 'manual' }}"
+      - run: echo "started $(date -u +%FT%TZ)"

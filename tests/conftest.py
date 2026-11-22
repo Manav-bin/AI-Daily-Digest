@@ -5,6 +5,7 @@ clock are faked, and a test that tries to reach the network fails.
 """
 
 import json
+import socket
 import sys
 import types
 from email.utils import format_datetime
@@ -134,7 +135,7 @@ class FakeTransport:
     def script(self, model, *responses):
         self.scripts[model] = list(responses)
 
-    def __call__(self, url, headers=None, json=None, timeout=None):
+    def __call__(self, url, headers=None, json=None, timeout=None, allow_redirects=None):
         if "generativelanguage.googleapis.com" in url:
             provider = "gemini"
             model = url.split("/models/")[1].split(":")[0]
@@ -145,7 +146,8 @@ class FakeTransport:
             raise AssertionError(f"unexpected POST to {url}")
 
         self.calls.append({"provider": provider, "model": model, "url": url,
-                           "headers": headers, "body": json, "timeout": timeout})
+                           "headers": headers, "body": json, "timeout": timeout,
+                           "allow_redirects": allow_redirects})
         queue = self.scripts.get(model)
         if not queue:
             raise AssertionError(f"no scripted response for {provider}/{model}")
@@ -199,7 +201,7 @@ class FakeFeeds:
     def serve_fallback(self, url, body):
         self.fallback_routes[url] = body
 
-    def get(self, url, timeout=None, headers=None):
+    def get(self, url, timeout=None, headers=None, allow_redirects=None):
         self.requested.append({"url": url, "timeout": timeout, "headers": headers})
         route = self.routes.get(url)
         if route is None:
@@ -328,6 +330,14 @@ def isolated(monkeypatch, tmp_path_factory):
     digest._unusable_models.clear()
     digest._disabled_providers.clear()
     digest._logged_once.clear()
+    real_getaddrinfo = socket.getaddrinfo
+
+    def offline_dns(host, port, *args, **kwargs):
+        if str(host).endswith(".example"):
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", port))]
+        return real_getaddrinfo(host, port, *args, **kwargs)
+
+    monkeypatch.setattr(socket, "getaddrinfo", offline_dns)
     # A test run on Actions would otherwise look like a scheduled run.
     for name in ("GITHUB_EVENT_NAME", "DIGEST_SCHEDULE", "DIGEST_SCHEDULE_TZ"):
         monkeypatch.delenv(name, raising=False)

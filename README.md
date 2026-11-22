@@ -630,3 +630,19 @@ covers running the tests, adding a model provider and adding a channel.
 ## License
 
 [MIT](LICENSE)
+
+
+### Network security notes
+
+RSS feeds are treated as untrusted network inputs. The fetcher accepts only
+public HTTP(S) destinations, checks DNS for non-public addresses and validates
+redirects before following them. Failed HTTP requests never fall back to
+feedparser's unchecked network fetch. Private/local feeds are unsupported.
+DNS rebinding remains a residual risk; only use trusted feed configurations.
+
+API calls and chat webhooks do not follow redirects. Actions are pinned to
+verified commit IDs; daily runs use a read-only repository token. A no-secret
+test workflow runs on push and pull request.
+
+Do not commit local environment files or credentials. If a token was ever
+committed, rotate it; removing a file from the current branch is insufficient.

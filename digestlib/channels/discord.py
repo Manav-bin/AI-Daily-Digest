@@ -55,7 +55,7 @@ def send_discord(message, story_text=False):
 def _post(url, body):
     """One webhook call, with one retry after a 429."""
     for attempt in (1, 2):
-        resp = requests.post(url, json=body, timeout=30)
+        resp = requests.post(url, json=body, timeout=30, allow_redirects=False)
         if resp.status_code in (200, 204):
             return
         try:

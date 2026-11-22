@@ -3,11 +3,12 @@ which articles go to the model.
 """
 
 import html
+import ipaddress
 import re
 import socket
 import sys
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 from concurrent.futures import ThreadPoolExecutor
 
 import feedparser
@@ -28,10 +29,6 @@ FEED_FETCH_TIMEOUT = 20
 # Feeds fetched at once per topic. Enough to keep a slow topic to a couple
 # of timeout rounds without hitting any one host too hard.
 FEED_FETCH_WORKERS = 8
-
-# feedparser's fallback fetch in fetch_feed() takes no timeout argument and
-# can hang on a bad host. It uses the socket default, so set one here.
-socket.setdefaulttimeout(FEED_FETCH_TIMEOUT)
 
 USER_AGENT = (
     "daily-digest/1.0 (+https://github.com/Sathish-Rajmohan/AI-Daily-Digest; "
@@ -76,38 +73,86 @@ def _clean_text(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
+# Network restrictions apply to the original URL and every redirect target.
+MAX_FEED_REDIRECTS = 5
+MAX_FEED_BYTES = 5_000_000
+_REDIRECT_CODES = {301, 302, 303, 307, 308}
+
+
 def _web_link(url):
-    """The URL if it's an absolute http or https link, otherwise "". Feed links
-    become hrefs in the email, so javascript:, data: and relative links are
-    dropped.
-    """
-    url = (url or "").strip()
+    """Only absolute, uncredentialed web links may appear in a digest."""
+    if not isinstance(url, str):
+        return ""
+    url = url.strip()
+    if not url or any(ord(c) < 32 or ord(c) == 127 or c == "\\" for c in url):
+        return ""
     try:
         parts = urlsplit(url)
+        if (parts.scheme.lower() not in ("http", "https") or not parts.hostname
+                or parts.username is not None or parts.password is not None):
+            return ""
+        _ = parts.port
     except ValueError:
         return ""
-    if parts.scheme.lower() in ("http", "https") and parts.netloc:
-        return url
-    return ""
+    return url
+
+
+def _public_feed_url(url):
+    """Block private/non-public addresses, invalid URLs and internal hosts.
+
+    A malicious DNS server could still rebind between checking and connecting,
+    so use trusted feed configurations on networks with privileged access.
+    """
+    if not _web_link(url):
+        raise ValueError("invalid or unsafe feed URL")
+    parts = urlsplit(url)
+    host = parts.hostname.rstrip(".").lower()
+    if not host or host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
+        raise ValueError("local feed hostname blocked")
+    try:
+        port = parts.port or (443 if parts.scheme.lower() == "https" else 80)
+        addresses = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+        if not addresses:
+            raise ValueError("feed hostname has no addresses")
+        if any(not ipaddress.ip_address(info[4][0].split("%", 1)[0]).is_global
+               for info in addresses):
+            raise ValueError("private or non-public feed address blocked")
+    except (OSError, UnicodeError) as exc:
+        raise ValueError("could not resolve feed hostname") from exc
+    return url
+
+
+def _feed_label(url):
+    """Show only hostnames in logs; feed URLs can contain API tokens."""
+    try:
+        return urlsplit(url).hostname or "(invalid host)"
+    except (ValueError, TypeError):
+        return "(invalid host)"
 
 
 def fetch_feed(feed_url):
-    """Fetch a feed with a timeout and User-Agent, then parse it. Calling
-    feedparser.parse(url) directly can hang on a bad host.
-    """
-    try:
-        resp = requests.get(
-            feed_url,
-            timeout=FEED_FETCH_TIMEOUT,
-            headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*"},
-        )
+    """Fetch RSS with bounded redirects; never let feedparser fetch URLs."""
+    current = feed_url
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+    }
+    for redirect in range(MAX_FEED_REDIRECTS + 1):
+        _public_feed_url(current)
+        resp = requests.get(current, timeout=FEED_FETCH_TIMEOUT,
+                            headers=headers, allow_redirects=False)
+        if resp.status_code in _REDIRECT_CODES:
+            location = resp.headers.get("Location")
+            if not location or redirect == MAX_FEED_REDIRECTS:
+                raise ValueError("feed redirect missing target or exceeded redirect limit")
+            current = urljoin(current, location)
+            continue
         resp.raise_for_status()
-        return feedparser.parse(resp.content)
-    except requests.exceptions.RequestException as e:
-        # Some hosts turn away non-browser clients but accept feedparser's own
-        # request, so try that.
-        print(f"  [warn] HTTP fetch failed for {feed_url}: {e}; trying feedparser", file=sys.stderr)
-        return feedparser.parse(feed_url)
+        data = resp.content
+        if len(data) > MAX_FEED_BYTES:
+            raise ValueError("feed response exceeds size limit")
+        return feedparser.parse(data)
+    raise ValueError("too many redirects")
 
 
 def _safe_fetch_feed(feed_url):
@@ -117,7 +162,8 @@ def _safe_fetch_feed(feed_url):
     try:
         return fetch_feed(feed_url)
     except Exception as e:
-        print(f"  [warn] failed to parse feed {feed_url}: {e}", file=sys.stderr)
+        print(f"  [warn] failed to fetch feed from {_feed_label(feed_url)} ({type(e).__name__})",
+              file=sys.stderr)
         return None
 
 

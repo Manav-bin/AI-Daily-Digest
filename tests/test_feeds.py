@@ -99,18 +99,15 @@ def test_fetch_sends_timeout_and_user_agent(feeds):
 
 
 @pytest.mark.parametrize("failure", ["http_error", "connection_error"])
-def test_failed_http_fetch_falls_back_to_feedparser(feeds, failure, capsys):
+def test_failed_http_fetch_never_falls_back_to_unchecked_network(feeds, failure):
     if failure == "http_error":
         feeds.serve(URL_A, b"Forbidden", status_code=403)
     else:
         feeds.fail(URL_A)
-    feeds.serve_fallback(URL_A, rss({"title": "Via fallback"}))
-
-    parsed = digest.fetch_feed(URL_A)
-
-    assert parsed.entries[0].title == "Via fallback"
-    assert feeds.fallback_requested == [URL_A]
-    assert "trying feedparser" in capsys.readouterr().err
+    feeds.serve_fallback(URL_A, rss({"title": "Unsafe fallback"}))
+    with pytest.raises(digest.requests.exceptions.RequestException):
+        digest.fetch_feed(URL_A)
+    assert feeds.fallback_requested == []
 
 
 def test_safe_fetch_returns_none_instead_of_raising(monkeypatch, capsys):
@@ -118,7 +115,7 @@ def test_safe_fetch_returns_none_instead_of_raising(monkeypatch, capsys):
         raise RuntimeError("parser blew up")
     monkeypatch.setattr(digest, "fetch_feed", explode)
     assert digest._safe_fetch_feed(URL_A) is None
-    assert URL_A in capsys.readouterr().err
+    assert 'news.example' in capsys.readouterr().err
 
 
 # --------------------------------------------------------------------------
@@ -279,7 +276,7 @@ def test_a_dead_feed_does_not_stop_the_others(feeds):
     feeds.serve(URL_B, rss({"title": "alive", "link": "https://news.example/1", "pubDate": ago(1)}))
     titles = [a["title"] for a in digest.fetch_topic_articles(one_topic(URL_A, URL_B), 24)]
     assert titles == ["alive"]
-    assert feeds.fallback_requested == [URL_A]
+    assert feeds.fallback_requested == []
 
 
 def test_an_html_page_instead_of_a_feed_yields_nothing(feeds):
@@ -333,7 +330,7 @@ def test_feeds_are_fetched_concurrently(monkeypatch):
     # at a time, the barrier times out and every feed comes back empty.
     barrier = threading.Barrier(3, timeout=5)
 
-    def get(url, timeout=None, headers=None):
+    def get(url, timeout=None, headers=None, allow_redirects=None):
         barrier.wait()
         return FeedResponse(rss({"title": url, "link": url + "/1", "pubDate": ago(1)}))
 
@@ -345,7 +342,7 @@ def test_dedup_is_deterministic_when_the_first_feed_answers_last(monkeypatch):
     shared = "https://news.example/shared"
     second_done = threading.Event()
 
-    def get(url, timeout=None, headers=None):
+    def get(url, timeout=None, headers=None, allow_redirects=None):
         if url == URL_A:
             second_done.wait(timeout=5)
             return FeedResponse(rss({"title": "From A", "link": shared, "pubDate": ago(1)}, title="A"))

@@ -21,3 +21,11 @@ saved-digests/
 # Test runs
 .pytest_cache/
 .coverage
+
+# Private configuration and local key material
+.env.*
+!.env.example
+.venv/
+*.pem
+*.p12
+*.pfx

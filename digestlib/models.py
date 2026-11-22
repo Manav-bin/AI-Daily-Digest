@@ -364,7 +364,8 @@ def _call_model(provider, model, prompt, topic_name, system, schema):
             return None
 
         try:
-            resp = requests.post(url, headers=headers, json=body, timeout=REQUEST_TIMEOUT)
+            resp = requests.post(url, headers=headers, json=body, timeout=REQUEST_TIMEOUT,
+                                 allow_redirects=False)
         except requests.exceptions.RequestException as e:
             print(f"  [warn] {label}: request failed ({e})", file=sys.stderr)
             if attempt == ATTEMPTS_PER_MODEL:

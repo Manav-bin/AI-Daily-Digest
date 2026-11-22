@@ -61,7 +61,7 @@ def send_telegram(message, story_text=False):
 def _post(token, body):
     """One sendMessage call, with one retry after a 429."""
     for attempt in (1, 2):
-        resp = requests.post(f"{TELEGRAM_API}/bot{token}/sendMessage", json=body, timeout=30)
+        resp = requests.post(f"{TELEGRAM_API}/bot{token}/sendMessage", json=body, timeout=30, allow_redirects=False)
         try:
             reply = resp.json()
         except ValueError:

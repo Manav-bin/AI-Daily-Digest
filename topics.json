@@ -3,43 +3,26 @@
 
   "topics": [
     {
-      "name": "Tech & AI",
+      "name": "Offensive Security",
       "max_stories": 8,
-      "feeds": [
-  "https://portswigger.net/research/rss",
-  "https://blog.portswigger.net/feeds/posts/default",
-  "https://semgrep.dev/blog/rss",
-  "https://snyk.io/blog/feed/",
-  "https://socket.dev/api/blog/feed.atom",
-  "https://checkmarx.com/feed/",
-  "https://sonatype.com/blog/rss.xml",
-  "https://www.aikido.dev/blog/rss.xml",
-  "https://salt.security/blog/rss.xml",
-  "https://blog.doyensec.com/atom.xml",
-  "https://labs.watchtowr.com/rss",
-  "https://bishopfox.com/feeds/blog.rss",
-  "https://blog.trailofbits.com/feed/",
-  "https://googleprojectzero.blogspot.com/feeds/posts/default",
-  "https://securitylab.github.com/feed.xml",
-  "https://owasp.org/feed.xml",
-  "https://genai.owasp.org/feed/",
-  "https://api-security.owasp.org/",
-  "https://cheatsheetseries.owasp.org/",
-  "https://tldrsec.com/feed.xml",
-  "https://apisecurity.io/feed/index.xml",
-  "https://appsec.guide/index.xml",
-  "https://www.zerodayinitiative.com/rss/published",
-  "https://github.com/OWASP/ASVS/releases.atom",
-  "https://api.github.com/advisories",
-  "https://api.github.com/repos/vercel/next.js/security-advisories",
-  "https://spring.io/security.atom",
-  "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
-  "https://openssf.org/feed/",
-  "https://blog.mozilla.org/security/feed/",
-  "https://www.wordfence.com/blog/feed/"
-]
-
-    }
+      "feeds": ['https://github.blog/tag/github-security-lab/feed/', 'https://spring.io/security.atom', 'https://tldrsec.com/feed.xml', 'https://developer.chrome.com/static/blog/feed.xml', 'https://chromereleases.googleblog.com/feeds/posts/default', 'https://github.com/OWASP/ASVS/releases.atom', 'https://genai.owasp.org/feed/', 'https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v', 'https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/feed/', 'https://github.com/mitre-attack/attack-stix-data/releases.atom', 'https://news.risky.biz/rss/', 'https://isc.sans.edu/dailypodcast.xml', 'https://aws.amazon.com/blogs/security/feed/', 'https://kubernetes.io/feed.xml', 'https://spectrum.ieee.org/feeds/feed.rss','https://blog.cloudflare.com/tag/security/rss/','https://www.microsoft.com/en-us/security/blog/feed/','https://feeds.feedburner.com/TheHackersNews']
+    },
+    {
+      "name": "Appsec Core Topic",
+      "max_stories": 8,
+      "feeds": ['https://tldrsec.com/feed.xml']
+    },
+    {
+  "name": "Tech: AI research",
+  "max_stories": 6,
+  "feeds": [
+    "https://huggingface.co/blog/feed.xml",
+    "https://openai.com/news/rss.xml",
+    "https://deepmind.google/blog/rss.xml",
+    "https://simonwillison.net/atom/everything/",
+    "https://www.marktechpost.com/feed/"
+  ]
+}   
   ],
 
   "settings": {

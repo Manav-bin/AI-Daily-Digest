@@ -184,7 +184,10 @@ def main():
 
         print(f"  writing one synthesized brief with {build_model_chain()[0][1]}...")
         try:
-            brief = summarize_topic(name, articles, max_developments)
+            brief = summarize_topic(
+                name, articles, max_developments,
+                vulnerability_guidance=topic.get("vulnerability_guidance", False),
+            )
         except Exception as e:
             print(f"  [error] summarize failed for '{name}': {e}", file=sys.stderr)
             brief = None

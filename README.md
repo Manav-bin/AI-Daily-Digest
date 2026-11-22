@@ -217,6 +217,12 @@ Copy a block to add a topic and delete one to remove it. The blocks in the
 topic without `max_stories` gets up to five stories. Articles about the same
 event are merged, so a quiet day can come in under the limit.
 
+The daily AppSec Core topic enables `vulnerability_guidance`. When a source
+reports a newly disclosed vulnerability or a new class of flaws, its story
+includes **What happened**, **What to test**, and **What to do for remediation**.
+The last two sections quote a cited title or sentence when the feed supplies
+the affected scope or a fix. When that information is missing, the digest says so.
+
 [FEEDS.md](FEEDS.md) has blocks to paste in for about fifty subjects, from
 sport and finance down to single interests like Formula 1 or anime. It also
 has a prompt you can give an AI assistant to find feeds for a subject that

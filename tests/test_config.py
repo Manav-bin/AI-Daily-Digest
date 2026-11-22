@@ -107,6 +107,7 @@ def test_topics_must_be_an_array(write_config, config):
     (topic(max_stories="8"), "max_stories"),
     (topic(max_stories=0), "max_stories"),
     (topic(max_stories=True), "max_stories"),
+    (topic(vulnerability_guidance="false"), "vulnerability_guidance"),
     (topic(name=42), "name"),
 ])
 def test_malformed_topic_is_rejected_with_a_clear_message(write_config, bad_topic, field):

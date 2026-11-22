@@ -89,6 +89,48 @@ def test_unicode_is_sent_unescaped(transport):
     assert "Élection à Montréal" in transport.prompt()
 
 
+def test_appsec_keeps_ordinary_news_in_its_usual_format(transport):
+    news = dict(SAMPLE_BRIEF["stories"][0], new_vulnerability=False,
+                what_to_test="unused", remediation="unused")
+    transport.script("gem-a", gemini_reply({"stories": [news], "overview": "News."}))
+    result = digest.summarize_topic("AppSec", make_articles(2), 3, vulnerability_guidance=True)
+    assert result["stories"][0]["detail"] == news["detail"]
+    body = transport.calls[0]["body"]
+    assert "newly documented class of flaws" in body["systemInstruction"]["parts"][0]["text"]
+    fields = body["generationConfig"]["responseSchema"]["properties"]["stories"]["items"]["required"]
+    assert {"new_vulnerability", "what_to_test", "remediation"} <= set(fields)
+    assert "new_vulnerability" not in digest.BRIEF_SCHEMA["properties"]["stories"]["items"]["properties"]
+
+
+def test_appsec_accepts_only_complete_visible_statements_from_cited_articles(transport):
+    articles = make_articles(2)
+    articles[0]["summary"] = ("Do not roll back the update. " + "x" * digest.SNIPPET_CHARS
+                              + ". Apply the hotfix.")
+    articles[1]["summary"] = "Only web installations are affected."
+    story = {"new_vulnerability": True, "subheading": "New flaw", "detail": "The issue is new.",
+             "article_ids": [1], "what_to_test": articles[1]["summary"], "remediation": "roll back the update."}
+    for fix in ("roll back the update.", "Apply the hotfix.", {"text": "Do not roll back the update."}):
+        transport.script("gem-a", gemini_reply({"stories": [dict(story, remediation=fix)]}))
+        result = digest.summarize_topic("AppSec", articles, 3, vulnerability_guidance=True)
+        detail = result["stories"][0]["detail"]
+        assert "The cited sources do not specify what to check." in detail
+        assert "The cited sources do not specify a fix or mitigation." in detail
+        assert "roll back" not in detail and "hotfix" not in detail
+
+
+def test_appsec_rejects_a_citation_outside_the_successful_providers_input(transport, with_groq, monkeypatch):
+    monkeypatch.setattr(digest, "GEMINI_API_KEY", None)
+    unseen = digest.PROVIDER_ARTICLE_CAP["groq"] + 1
+    entry = {"new_vulnerability": True, "subheading": "Advisory", "detail": "A flaw was disclosed.",
+             "what_to_test": "", "remediation": "", "article_ids": [unseen]}
+    transport.script("groq-a", groq_reply({"stories": [entry], "overview": "An advisory."}))
+    assert digest.summarize_topic("AppSec", make_articles(unseen), 3, vulnerability_guidance=True) is None
+    schema = transport.calls[0]["body"]["response_format"]["json_schema"]["schema"]
+    item = schema["properties"]["stories"]["items"]
+    assert item["properties"]["new_vulnerability"]["type"] == "boolean"
+    assert set(item["required"]) == set(item["properties"]) and not item["additionalProperties"]
+
+
 # Feed text containing the closing tag mustn't end the article list early.
 def test_feed_text_cannot_close_the_article_fence(transport):
     transport.script("gem-a", gemini_reply(SAMPLE_BRIEF))

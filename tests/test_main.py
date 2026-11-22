@@ -72,7 +72,7 @@ def fake_pipeline(monkeypatch):
             raise value
         return value
 
-    def summarize(name, articles, max_developments):
+    def summarize(name, articles, max_developments, *, vulnerability_guidance=False):
         p.events.append(("summarize", name, max_developments))
         value = p.summaries.get(name, written_brief(name))
         if isinstance(value, BaseException):
@@ -540,6 +540,35 @@ def test_full_run_during_a_total_model_outage(write_config, mail_env, feeds, tra
     assert "No summary was available for this topic" in body
     assert 'href="https://a.example/1"' in body
     assert "Fact of the day" not in body
+
+
+def test_appsec_sections_reach_email_amp_and_saved_digest(write_config, mail_env, feeds, transport, smtp):
+    scope = "Sites using the legacy cache are affected."
+    fix = "Apply the vendor update."
+    url = "https://a.example/advisory"
+    feeds.serve("https://a.example/rss", rss(
+        {"title": "New isolation flaw", "link": url, "pubDate": ago(1), "description": f"{scope} {fix}"}))
+    write_config(config({"name": "AppSec", "feeds": ["https://a.example/rss"],
+                         "vulnerability_guidance": True}, fact_of_the_day=False))
+    transport.script("gem-a", gemini_reply({
+        "overview": "A new advisory.",
+        "stories": [{"new_vulnerability": True, "article_ids": [1], "subheading": "Cache isolation",
+                     "detail": "A <cache> boundary was missing.", "what_to_test": scope, "remediation": fix}],
+    }))
+
+    digest.main()
+
+    msg, body = html_of(smtp)
+    amp = msg.get_payload(0).get_payload(decode=True).decode("utf-8")
+    [saved] = Path(digest.SAVE_DIR).glob("digest-*.json")
+    story = json.loads(saved.read_text(encoding="utf-8"))["topics"][0]["stories"][0]
+    for text in (body, amp, story["detail"]):
+        assert text.index("What happened") < text.index("What to test") < text.index("What to do for remediation")
+        assert scope in text and fix in text
+    for markup in (body, amp):
+        assert "&lt;cache&gt;" in markup and "<cache>" not in markup
+        assert f'href="{url}"' in markup
+    assert [s["link"] for s in story["sources"]] == [url]
 
 
 # --------------------------------------------------------------------------

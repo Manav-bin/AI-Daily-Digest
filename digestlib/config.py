@@ -54,6 +54,9 @@ def _check_topic(topic, index):
     if isinstance(max_stories, bool) or not isinstance(max_stories, int) or max_stories < 1:
         raise ValueError(f"{CONFIG_PATH}: {where} 'max_stories' must be a whole number of 1 or more")
 
+    if not isinstance(topic.get("vulnerability_guidance", False), bool):
+        raise ValueError(f"{CONFIG_PATH}: {where} 'vulnerability_guidance' must be true or false")
+
 
 def _check_settings(settings):
     if settings is None:

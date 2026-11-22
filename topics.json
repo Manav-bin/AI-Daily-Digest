@@ -9,6 +9,7 @@
     },
     {
       "name": "Appsec Core Topic",
+      "vulnerability_guidance": true,
       "max_stories": 8,
       "feeds": ["https://tldrsec.com/feed.xml"]
     },

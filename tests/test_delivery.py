@@ -120,7 +120,7 @@ class Run:
             return [{"title": "A", "link": "https://a.example/1", "summary": "", "source": "O",
                      "published": None}]
 
-        def summarize(name, articles, max_developments):
+        def summarize(name, articles, max_developments, *, vulnerability_guidance=False):
             return {"overview": "Overview.", "stories": []}
 
         def send(subject, body, amp_body=None):

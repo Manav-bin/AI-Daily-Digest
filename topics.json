@@ -111,8 +111,8 @@
 
   "settings": {
     "lookback_hours": 24,
-    "email_subject_prefix": "Daily Digest",
-    "timezone": "Australia/Sydney",
+    "email_subject_prefix": "AppSec TL;DR",
+    "timezone": "Asia/Kolkata",
     "fact_of_the_day": true,
     "collapsible_stories": true
   },

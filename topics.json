@@ -5,12 +5,12 @@
     {
       "name": "Offensive Security",
       "max_stories": 8,
-      "feeds": ['https://github.blog/tag/github-security-lab/feed/', 'https://spring.io/security.atom', 'https://tldrsec.com/feed.xml', 'https://developer.chrome.com/static/blog/feed.xml', 'https://chromereleases.googleblog.com/feeds/posts/default', 'https://github.com/OWASP/ASVS/releases.atom', 'https://genai.owasp.org/feed/', 'https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v', 'https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/feed/', 'https://github.com/mitre-attack/attack-stix-data/releases.atom', 'https://news.risky.biz/rss/', 'https://isc.sans.edu/dailypodcast.xml', 'https://aws.amazon.com/blogs/security/feed/', 'https://kubernetes.io/feed.xml', 'https://spectrum.ieee.org/feeds/feed.rss','https://blog.cloudflare.com/tag/security/rss/','https://www.microsoft.com/en-us/security/blog/feed/','https://feeds.feedburner.com/TheHackersNews']
+      "feeds": ["https://github.blog/tag/github-security-lab/feed/", "https://spring.io/security.atom", "https://tldrsec.com/feed.xml", "https://developer.chrome.com/static/blog/feed.xml", "https://chromereleases.googleblog.com/feeds/posts/default", "https://github.com/OWASP/ASVS/releases.atom", "https://genai.owasp.org/feed/", "https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v", "https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/feed/", "https://github.com/mitre-attack/attack-stix-data/releases.atom", "https://news.risky.biz/rss/", "https://isc.sans.edu/dailypodcast.xml", "https://aws.amazon.com/blogs/security/feed/", "https://kubernetes.io/feed.xml", "https://spectrum.ieee.org/feeds/feed.rss","https://blog.cloudflare.com/tag/security/rss/","https://www.microsoft.com/en-us/security/blog/feed/","https://feeds.feedburner.com/TheHackersNews"]
     },
     {
       "name": "Appsec Core Topic",
       "max_stories": 8,
-      "feeds": ['https://tldrsec.com/feed.xml']
+      "feeds": ["https://tldrsec.com/feed.xml"]
     },
     {
   "name": "Tech: AI research",

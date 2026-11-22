@@ -30,7 +30,6 @@
   "https://appsec.guide/index.xml",
   "https://www.zerodayinitiative.com/rss/published",
   "https://github.com/OWASP/ASVS/releases.atom",
-  "https://github.com/OWASP/ASVS/releases.atom",
   "https://api.github.com/advisories",
   "https://api.github.com/repos/vercel/next.js/security-advisories",
   "https://spring.io/security.atom",

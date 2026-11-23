@@ -32,10 +32,10 @@ jobs:
        github.event.workflow_run.run_attempt == 1)
     runs-on: ubuntu-latest
     # The download takes a minute or two, the model budget is 15 minutes
-    # (TOTAL_BUDGET), and a run can wait up to 3 hours for the weekly
+    # (TOTAL_BUDGET), and a run can wait up to 5 hours for the weekly
     # deliver_at (MAX_HOLD in digestlib/schedule.py). The daily job's limit
     # covers the same.
-    timeout-minutes: 215
+    timeout-minutes: 335
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

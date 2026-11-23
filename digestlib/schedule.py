@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 # Longest a finished run waits for deliver_at. Waiting uses Actions minutes, so
 # it's capped, and the workflow's timeout has to cover it on top of a
 # worst-case run.
-MAX_HOLD = 180 * 60
+MAX_HOLD = 300 * 60
 
 
 # When a run was meant to start, and when it should send. Scheduled runs are

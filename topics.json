@@ -1,39 +1,58 @@
 {
   "_comment": "Add a topic by copying a block and changing its name and feeds. Delete a block to remove that topic. max_stories is the most stories a topic can have, and related articles are merged, so quiet days have fewer. Articles are taken from each feed in turn, so a busy feed can't push the others out. README.md explains the settings, and FEEDS.md has ready-made topics.",
-
   "topics": [
     {
       "name": "Offensive Security",
       "max_stories": 8,
-      "feeds": ["https://github.blog/tag/github-security-lab/feed/", "https://spring.io/security.atom", "https://tldrsec.com/feed.xml", "https://developer.chrome.com/static/blog/feed.xml", "https://chromereleases.googleblog.com/feeds/posts/default", "https://github.com/OWASP/ASVS/releases.atom", "https://genai.owasp.org/feed/", "https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v", "https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/feed/", "https://github.com/mitre-attack/attack-stix-data/releases.atom", "https://news.risky.biz/rss/", "https://isc.sans.edu/dailypodcast.xml", "https://aws.amazon.com/blogs/security/feed/", "https://kubernetes.io/feed.xml", "https://spectrum.ieee.org/feeds/feed.rss","https://blog.cloudflare.com/tag/security/rss/","https://www.microsoft.com/en-us/security/blog/feed/","https://feeds.feedburner.com/TheHackersNews"]
+      "feeds": [
+        "https://github.blog/tag/github-security-lab/feed/",
+        "https://spring.io/security.atom",
+        "https://tldrsec.com/feed.xml",
+        "https://developer.chrome.com/static/blog/feed.xml",
+        "https://chromereleases.googleblog.com/feeds/posts/default",
+        "https://github.com/OWASP/ASVS/releases.atom",
+        "https://genai.owasp.org/feed/",
+        "https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v",
+        "https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/feed/",
+        "https://github.com/mitre-attack/attack-stix-data/releases.atom",
+        "https://news.risky.biz/rss/",
+        "https://isc.sans.edu/dailypodcast.xml",
+        "https://aws.amazon.com/blogs/security/feed/",
+        "https://kubernetes.io/feed.xml",
+        "https://spectrum.ieee.org/feeds/feed.rss",
+        "https://blog.cloudflare.com/tag/security/rss/",
+        "https://www.microsoft.com/en-us/security/blog/feed/",
+        "https://feeds.feedburner.com/TheHackersNews"
+      ]
     },
     {
       "name": "Appsec Core Topic",
       "vulnerability_guidance": true,
       "max_stories": 8,
-      "feeds": ["https://tldrsec.com/feed.xml"]
+      "feeds": [
+        "https://tldrsec.com/feed.xml"
+      ]
     },
     {
-  "name": "Tech: AI research",
-  "max_stories": 6,
-  "feeds": [
-    "https://huggingface.co/blog/feed.xml",
-    "https://openai.com/news/rss.xml",
-    "https://deepmind.google/blog/rss.xml",
-    "https://simonwillison.net/atom/everything/",
-    "https://www.marktechpost.com/feed/"
-  ]
-}   
+      "name": "Tech: AI research",
+      "max_stories": 6,
+      "feeds": [
+        "https://huggingface.co/blog/feed.xml",
+        "https://openai.com/news/rss.xml",
+        "https://deepmind.google/blog/rss.xml",
+        "https://simonwillison.net/atom/everything/",
+        "https://www.marktechpost.com/feed/"
+      ]
+    }
   ],
-
   "settings": {
     "lookback_hours": 24,
     "email_subject_prefix": "AppSec TL;DR",
     "timezone": "Asia/Kolkata",
     "fact_of_the_day": true,
-    "collapsible_stories": true
+    "collapsible_stories": true,
+    "deliver_at": "09:00"
   },
-
   "weekly": {
     "_comment": "The weekly edition: one email on the chosen day, written from that week's daily digests. Set enabled to false to turn it off. README.md explains the settings.",
     "enabled": true,

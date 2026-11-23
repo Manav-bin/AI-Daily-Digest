@@ -1,13 +1,17 @@
 name: Daily News Digest
 
 on:
+  # Temporary one-time trigger for today's run; remove after it starts.
+  push:
+    branches: [main]
+    paths: [topics.json]
   schedule:
-    # 8:17 AM in Sydney every day. Cron uses UTC unless a timezone is set,
+    # 4:17 AM in India every day. Cron uses UTC unless a timezone is set,
     # and with one set GitHub keeps the local time across daylight saving.
     # The 17 is on purpose. GitHub delays scheduled runs most at the start of
     # an hour, and "0 8 * * *" started every run 110 to 208 minutes late. See
     # HOW-IT-WORKS.md, "When the email arrives".
-    - cron: "30 8 * * *"
+    - cron: "17 4 * * *"
       timezone: "Asia/Kolkata"
   workflow_dispatch: {}   # manual run from the Actions tab
 
@@ -19,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     # A worst-case run takes about 30 minutes: every feed timing out, the
     # full 15-minute model budget (TOTAL_BUDGET), then sending. On top of that
-    # a run can wait up to 3 hours for deliver_at (MAX_HOLD in
-    # digestlib/schedule.py), so the limit is 35 + 180 minutes. It still stops a stuck run well before
+    # a run can wait up to 5 hours for deliver_at (MAX_HOLD in
+    # digestlib/schedule.py), so the limit is 35 + 300 minutes. It still stops a stuck run well before
     # GitHub's default of 6 hours.
-    timeout-minutes: 215
+    timeout-minutes: 335
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

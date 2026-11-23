@@ -1,10 +1,6 @@
 name: Daily News Digest
 
 on:
-  # Temporary one-time trigger for today's run; remove after it starts.
-  push:
-    branches: [main]
-    paths: [topics.json]
   schedule:
     # 4:17 AM in India every day. Cron uses UTC unless a timezone is set,
     # and with one set GitHub keeps the local time across daylight saving.

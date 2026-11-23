@@ -1,5 +1,5 @@
 """When a run was due, how late it started, and holding the email until
-deliver_at. Everything runs on a fake clock, so a three-hour wait is instant."""
+deliver_at. Everything runs on a fake clock, so a five-hour wait is instant."""
 
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -178,13 +178,13 @@ def test_a_run_that_finishes_after_the_delivery_time_sends_at_once(start_run, ca
 
 
 def test_the_hold_never_goes_past_the_cap(start_run, capsys):
-    # Due at 04:00 with delivery at 08:00 is a 4 hour wait, and the cap is 3.
-    run = start_run(EIGHT - timedelta(hours=4), cron="0 4 * * *", deliver_at="08:00")
+    # Due at 04:00 with delivery at 10:00 is a 6 hour wait, beyond the 5 hour cap.
+    run = start_run(EIGHT - timedelta(hours=4), cron="0 4 * * *", deliver_at="10:00")
     digest.main()
     [hold] = run.holds
     assert hold == digest.MAX_HOLD
     assert run.sent_at == [EIGHT - timedelta(hours=4) + timedelta(seconds=2 + digest.MAX_HOLD)]
-    assert "past the 180 min hold limit" in capsys.readouterr().err
+    assert "past the 300 min hold limit" in capsys.readouterr().err
 
 
 def test_a_manual_run_never_waits(start_run, capsys):
